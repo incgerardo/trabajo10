@@ -7,6 +7,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 password=input("Ingresa el password: ")
+desc_pedido=input("Carga el contenido del sim: ")
 
 driver = webdriver.Chrome()
 
@@ -50,17 +51,53 @@ accion2.click()
 
 time.sleep(3)
 
-iframe = driver.find_element(By.ID, "refresco")
+iframe = driver.find_element(By.ID, "content")
 driver.switch_to.frame(iframe)
 
-pdb.set_trace()
-
-selector_up = Select(driver.find_element(By.ID, "#idsector"))
-
+selector_up = Select(driver.find_element(By.ID, "idsector"))
 selector_up.select_by_value("91")
+
+# Guardar el manejador (handle) de la ventana principal
+ventana_principal = driver.current_window_handle
+
+selector_equipo = driver.find_element(By.ID, "seleq")
+selector_equipo.click()
+
+time.sleep(2)
+
+# Obtener todos los manejadores de ventana
+handles_ventanas = driver.window_handles
+
+# Cambiar al manejador de la nueva ventana
+for ventana in handles_ventanas:
+    if ventana != ventana_principal:
+        driver.switch_to.window(ventana)
+        break
+
+radio_equipo = driver.find_element(By.XPATH,"//input[@type='radio' and @value='1659']")
+radio_equipo.click()
+
+driver.switch_to.window(ventana_principal)
+driver.switch_to.frame(iframe)
+
+descripcion = driver.find_element(By.ID,"descripcion")
+descripcion.send_keys(desc_pedido)
+
+boton_enviar2 = driver.find_element(By.CLASS_NAME,"boton_enviar")
+boton_enviar2.click()
+
+pedido_sim = driver.find_element(By.CLASS_NAME,"estado_ok")
+print(pedido_sim.text)
+
+pdb.set_trace()
 
 time.sleep(3)
 
 driver.quit()
+
+
+
+
+
 
 
